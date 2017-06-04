@@ -1,5 +1,5 @@
 library("lubridate")
-formated <- read.csv("C:/Users/Max/Desktop/students_data/complete/final.csv" , colClasses = rep('character', 29))
+formated <- read.csv("PATH/final.csv" , colClasses = rep('character', 29))
 
 modelReady <- as.data.frame(matrix(data="0" , nrow=665798 , ncol =1))
 colnames(modelReady) <- c("email")
