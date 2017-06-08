@@ -17,6 +17,20 @@ zip_code = dnf.getNPFromPandas(df["Zipcode_inf_avail"] , [] , 1 , 0)
 #Get Citizenship_flag
 citizen = dnf.getNPFromPandas(df["Citizenship_Flag"] , [] , 1 , 0)
 
+#Get one hot array for race
+race = pd.get_dummies(df["Race"]).as_matrix().astype(np.float64)
+
+#Get one hot array for gender
+gender = pd.get_dummies(df["Gender"]).as_matrix().astype(np.float64)
+
+#Get one hot array for Degree
+degree = pd.get_dummies(df["Degree"]).as_matrix().astype(np.float64)
+
+#Add student segment, type, and application type
+std_seg = pd.get_dummies(df["Student_Segment"]).as_matrix().astype(np.float64)
+std_type = pd.get_dummies(df["Student_Type"]).as_matrix().astype(np.float64)
+app_type = pd.get_dummies(df["Applicant_Type"]).as_matrix().astype(np.float64)
+
 #The normalize value is the almost the average of the data. EX 20000 is the average population of a zip code
 
 #Age when applies
@@ -48,7 +62,18 @@ poverty = dnf.getNPFromPandas(df["Poverty"], ["%"] , 100 , 0)
 roles = pd.get_dummies(df["Role"]).as_matrix().astype(np.float64)
 
 #Merging all data together
-data = np.vstack([zip_code ,citizen, awa , afh , population , median_age , education , median_income , immigrants , poverty  ])
+data = np.vstack([zip_code ,citizen , awa , afh , population , median_age , education , median_income , immigrants , poverty  ])
+
+#Adding race
+data = np.append(data , race.T , axis = 0)
+#Adding gender
+data = np.append(data , gender.T , axis = 0)
+#Adding degree
+data = np.append(data , degree.T , axis = 0)
+#Add student segment, type, and application type
+data = np.append(data , std_seg.T , axis = 0)
+data = np.append(data , std_type.T , axis = 0)
+data = np.append(data , app_type.T , axis = 0)
 #Adding the roles
 data = np.append(data , roles.T , axis = 0)
 #Flipping the data back 
@@ -58,8 +83,8 @@ data = data.T
 np.random.shuffle(data)
 
 #Extract the end values
-Y = data[ : , 10: ]
-X = data[: , :10]
+Y = data[ : , -3: ]
+X = data[: , :-3]
 
 #Set the train data number
 trainSize = 466058
@@ -70,7 +95,7 @@ testX= X[trainSize:  , :]
 testY= Y[trainSize: , :]
 
 model = Sequential()
-model.add(Dense(20 , input_dim=10))
+model.add(Dense(20 , input_dim=X.shape[1]))
 model.add(Activation('sigmoid'))
 
 model.add(Dense(20))
