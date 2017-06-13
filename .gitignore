@@ -1,2 +1,4 @@
 .spyproject
 final.csv
+*.pyc
+*.pyo
