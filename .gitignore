@@ -1,4 +1,4 @@
 .spyproject
-final.csv
+data/*
 *.pyc
 *.pyo

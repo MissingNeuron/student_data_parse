@@ -9,15 +9,12 @@ from keras.layers import Activation, Dense
 #Create data encoder class
 denc = dtm.dataTypeEncoder();
 
-df = pd.read_csv("../../final.csv" , low_memory=False)
+df = pd.read_csv("../../data/final.csv" , low_memory=False)
 
 #Buildig matrix for training
 
-#Extract source types
-sourceList = dnf.getUniqueList(df["Source"].unique() , ";")
-
 #Creates encoding that is triggered for each source that the applicant belongs to
-sourceEnc = dnf.getSourceEncoding(sourceList , df["Source"] , ";")
+sourceEnc = denc.getSourceEncoding(df["Source"] , denc.source_ , "nan" ,";")
 
 #Extract the zip info
 #Get zipcode_inf_avail 1 if we have zip code info else 0
@@ -78,7 +75,8 @@ roles = roles.astype(np.float64)
 roles[np.isnan(roles)] = 0
 
 #Merging all data together
-data = np.vstack([zip_code ,citizen , awa , afh , population , median_age , education , median_income , immigrants , poverty  ])
+data = np.vstack([zip_code ,citizen , awa , afh , population , median_age , 
+                  education , median_income , immigrants , poverty  ])
 
 #Adding race
 data = np.append(data , race.T , axis = 0)
@@ -129,7 +127,8 @@ model.add(Activation('relu'))
 model.add(Dense(1))
 model.add(Activation('sigmoid'))
 
-model.compile(loss='mean_squared_error',optimizer='rmsprop',metrics=['accuracy'])
+model.compile(loss='mean_squared_error',optimizer='rmsprop',
+              metrics=['accuracy'])
 
 model.fit(trainX, trainY, batch_size=1000, epochs=3, verbose=1)
 

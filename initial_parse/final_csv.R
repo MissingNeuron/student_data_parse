@@ -1,5 +1,7 @@
 library(lubridate)
 
+data <- read.csv("C:/Users/Max/Desktop/students_data/complete/complete.csv")
+
 formated <- as.data.frame(matrix(data="NULL" , nrow=665798 , ncol = 30))
 
 colnames(formated) <- c("Email" , "Stage" , "Age" , "Race" , "Ethnicity" , "Gender" , "Citizenship_Flag" , "X19" , "American_Honors" , "HS_Year" , "Age_Finished_HS" , "HS_Info" , "Anticp_Register_Term_Avail" , "Major"  , "Area_Of_Study" , "Degree" , "Student_Segment" , "Student_Type" , "Applicant_Type" , "Source" , "Lead_Source" , "Event_Name" , "Zipcode_inf_avail" , "Population" , "Median_Age" , "Education" , "Median_Income" , "Immigrants" , "Poverty" , "Role")

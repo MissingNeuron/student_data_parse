@@ -1,6 +1,6 @@
-zip_codes <- read.csv("PATH/zip_info.csv")
+zip_codes <- read.csv("C:/Users/Max/Desktop/zip/zip_info.csv")
 unique_zips <- unique(data$Contact_Postal)
-unique_zips <- data$Contact_Postal[which(formated$Zipcode_inf_avail == "NULL")]
+#unique_zips <- data$Contact_Postal[which(formated$Zipcode_inf_avail == "NULL")]
 
 formated$Zipcode_inf_avail <- as.character(formated$Zipcode_inf_avail)
 formated$Population <- as.character(formated$Population)

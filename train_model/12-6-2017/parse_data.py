@@ -5,7 +5,7 @@ import data_np_formater as dnf
 from keras.models import Sequential
 from keras.layers import Activation, Dense
 
-df = pd.read_csv("../../final.csv" , low_memory=False)
+df = pd.read_csv("../../data/final.csv" , low_memory=False)
 
 #Buildig matrix for training
 

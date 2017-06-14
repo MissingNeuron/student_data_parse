@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import re
+import pandas as pd 
 
 class dataTypeEncoder:
     
@@ -25,6 +27,15 @@ class dataTypeEncoder:
                  'Additional Ivy Tech Degree','Internal Transfer-Regions',
                  'Non Credit/Continuing Ed','Transient-Do not use for Guest',
                  'Do not use']
+    
+    source_ = ['aged', 'agedprospect','berryplastics','bridgeback','ducredit',
+               'educationfair','emberlist','ffaseniors','flin','flto','iche',
+               'ichecomplete','isir','isu','itttech','iupui','iusb',
+               'millerbrooksrfi','nacac','nan','next','openhouse',
+               'purduencentr','radioad','recruiterimport','recruiterrfi','sat',
+               'specirfitest','statewideenrolledscholarrosterfromcohort',
+               'stcentury','stcenturylistjan','stopoutlist','straighttoapprfi',
+               'taa','techday','webrfi']
     
     #encodeArray returns an encoded on hot array based on the train model
     #New entries will be encoded as the deault value
@@ -56,3 +67,54 @@ class dataTypeEncoder:
             hashMap[key] = i
             i += 1
         return hashMap
+    
+    
+    
+    def getSourceEncoding(self , array , arrDict , default, seperator):
+        #Create return array dimensions
+        sourceArr = array.as_matrix()
+        returnArr = np.zeros((sourceArr.shape[0] , len(self.source_)) )
+        #Create hashmap to map index
+        dictMap = self.getDict(arrDict)
+            
+        #loop over the applicant source array
+        #For each row, extract each entry
+        #Activate the correct entries for that entry in the returnArray
+        
+        for idx,row in enumerate(sourceArr):
+            row = str(row)
+            row = row.lower()
+            #List of charachters to remove. This will combine different writtings 
+            #of the same word
+            regReplace = r',|_|-|–| |/|[0-9]|march|nov|dec|\.|al|spring|summer|interested'
+            row = re.sub( regReplace , "" , row)
+            tokens = row.split(seperator)
+            #Loop over the tokens to activate the correct hash map 
+            for tok in tokens:
+                #Get the index of the token from the hashmap
+                hashIdx = dictMap[tok]
+                #Activate the matched values
+                returnArr[idx , hashIdx] = 1
+    
+        return returnArr.astype(np.float64)
+    
+    def getZipInfo(self , zips , info , index , columns):
+        #Create empy data frame
+        df =  pd.DataFrame("0" , index , columns)
+        zips = zips.as_matrix()
+        #Keep the first 5 numbers of the zip code only
+        zips = [str(x)[0:5] for x in zips]
+        #If the zip code is found, fill in the needed info
+        #Else, keep everything as 0
+        for idx, key in enumerate(zips):
+            if key in info.zip.values:
+                rez = info[info["zip"] == key ] 
+                df['Zipcode_inf_avail'][idx] = 1
+                df['Population'][idx] = rez['Census 2010 Total Population'].values[0]
+                df['Median_Age'][idx] = rez['Median Age'].values[0]
+                df['Education'][idx] = rez['Educational Attainment: Percent high school graduate or higher'].values[0]
+                df['Median_Income'][idx] = rez['Median Household Income'].values[0]
+                df['Immigrants'][idx] = rez['Foreign Born Population'].values[0]
+                df['Poverty'][idx] = rez['Individuals below poverty level'].values[0]
+        return df
+        
