@@ -115,13 +115,13 @@ model = Sequential()
 model.add(Dense(X.shape[1] , input_dim=X.shape[1]))
 model.add(Activation('relu'))
 
-model.add(Dense(25))
+model.add(Dense(50))
 model.add(Activation('relu'))
 
-model.add(Dense(25))
+model.add(Dense(50))
 model.add(Activation('relu'))
 
-model.add(Dense(25))
+model.add(Dense(50))
 model.add(Activation('relu'))
 
 model.add(Dense(1))

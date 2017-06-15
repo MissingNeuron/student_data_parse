@@ -91,10 +91,12 @@ class dataTypeEncoder:
             tokens = row.split(seperator)
             #Loop over the tokens to activate the correct hash map 
             for tok in tokens:
-                #Get the index of the token from the hashmap
-                hashIdx = dictMap[tok]
-                #Activate the matched values
-                returnArr[idx , hashIdx] = 1
+                #Check if tok is in map. If not, leave empty 
+                if tok in dictMap:
+                    #Get the index of the token from the hashmap
+                    hashIdx = dictMap[tok]
+                    #Activate the matched values
+                    returnArr[idx , hashIdx] = 1
     
         return returnArr.astype(np.float64)
     
