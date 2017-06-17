@@ -37,6 +37,11 @@ class dataTypeEncoder:
                'stcentury','stcenturylistjan','stopoutlist','straighttoapprfi',
                'taa','techday','webrfi']
     
+    stage_ = ['New', 'Closed', 'Assigned', 'Working', 'Active', 'Registered',
+              'Future']
+    
+    role_ = ['Prospect', 'Applicant', 'Student'];
+    
     #encodeArray returns an encoded on hot array based on the train model
     #New entries will be encoded as the deault value
     #Array to encode

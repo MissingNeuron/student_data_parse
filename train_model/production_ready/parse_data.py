@@ -4,7 +4,7 @@ import data_np_formater as dnf
 import data_type_model as dtm
 
 from keras.models import Sequential
-from keras.layers import Activation, Dense
+from keras.layers import Activation, Dense, Dropout
 
 #Create data encoder class
 denc = dtm.dataTypeEncoder();
@@ -38,6 +38,8 @@ std_seg = denc.encodeArray(df["Student_Segment"] , denc.std_seg_, "nan")
 std_type = denc.encodeArray(df["Student_Type"] , denc.std_type_, "nan")
 app_type = denc.encodeArray(df["Applicant_Type"] , denc.app_type_, "nan")
 
+stage = denc.encodeArray(df["Stage"] , denc.stage_, "new")
+
 #The normalize value is the almost the average of the data. EX 20000 is the average population of a zip code
 
 #Age when applies
@@ -69,14 +71,15 @@ poverty = dnf.getNPFromPandas(df["Poverty"], ["%"] , 100 , 0)
 roles = df["Role"].as_matrix()
 
 #Transform stage into a binary matrix. 0 is closed else 1
-roles[roles != "Student"] = 0
-roles[roles == "Student"] = 1
-roles = roles.astype(np.float64)
-roles[np.isnan(roles)] = 0
+roles = denc.encodeArray(df["Role"] , denc.role_, "nan")
+
+#Create more features based on the activation of the one hot
+typeAc = np.sum(std_type , axis = 1)
 
 #Merging all data together
 data = np.vstack([zip_code ,citizen , awa , afh , population , median_age , 
-                  education , median_income , immigrants , poverty  ])
+                  education , median_income , immigrants , poverty
+                  ,typeAc])
 
 #Adding race
 data = np.append(data , race.T , axis = 0)
@@ -90,9 +93,9 @@ data = np.append(data , std_type.T , axis = 0)
 data = np.append(data , app_type.T , axis = 0)
 #Add source enc
 data = np.append(data , sourceEnc.T , axis = 0)
+#data = np.append(data , stage.T , axis = 0)
 #Adding the roles 
-roles = np.resize( roles ,(1 , roles.shape[0]))
-data = np.append(data , roles , axis = 0)
+data = np.append(data , roles.T , axis = 0)
 
 data = data.T
 
@@ -100,8 +103,8 @@ data = data.T
 np.random.shuffle(data)
 
 #Extract the end values
-Y = data[ : , -1: ]
-X = data[: , :-1]
+Y = data[ : , -3: ]
+X = data[: , :-3]
 
 #Set the train data number
 trainSize = 466058
@@ -112,20 +115,21 @@ testX= X[trainSize:  , :]
 testY= Y[trainSize: , :]
 
 model = Sequential()
-model.add(Dense(X.shape[1] , input_dim=X.shape[1]))
-model.add(Activation('relu'))
+model.add(Dense(25 , input_dim=X.shape[1]))
+model.add(Activation('elu'))
 
-model.add(Dense(50))
-model.add(Activation('relu'))
+model.add(Dropout(0.25))
 
-model.add(Dense(50))
-model.add(Activation('relu'))
+model.add(Dense(25))
+model.add(Activation('elu'))
 
-model.add(Dense(50))
-model.add(Activation('relu'))
+model.add(Dropout(0.25))
 
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+model.add(Dense(25))
+model.add(Activation('elu'))
+
+model.add(Dense(3))
+model.add(Activation('softmax'))
 
 model.compile(loss='mean_squared_error',optimizer='rmsprop',
               metrics=['accuracy'])
@@ -145,10 +149,10 @@ prediction[prediction < 1] = 0
 prediction = prediction.astype(np.int16)
 testY = testY.astype(np.int16)
 
-true_p = sum((prediction == 0 ) & (testY == 0))[0]
-false_p = sum((prediction == 0 ) & (testY == 1))[0]
-true_n = sum((prediction == 1 ) & (testY == 1))[0]
-false_n = sum((prediction == 1 ) & (testY == 0))[0]
+true_p = sum((prediction == 1 ) & (testY == 1))[0]
+false_p = sum((prediction == 1 ) & (testY == 0))[0]
+true_n = sum((prediction == 0 ) & (testY == 0))[0]
+false_n = sum((prediction == 0 ) & (testY == 1))[0]
 
 prec = true_p / (true_p + false_p)
 recall = true_p / (true_p + false_n)
